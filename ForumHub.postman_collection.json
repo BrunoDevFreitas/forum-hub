@@ -1,0 +1,412 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-forumhub",
+    "name": "ForumHub API",
+    "description": "Coleção completa da API ForumHub. \n\n**Como usar:**\n1. Execute a requisição `Login` — o token JWT será salvo automaticamente na variável `{{token}}`.\n2. Todas as demais requisições já enviam o token no header `Authorization`.\n\n**Variáveis da coleção:**\n- `baseUrl`: URL base da API (padrão: `http://localhost:8080`)\n- `token`: Token JWT preenchido automaticamente após o login\n- `topicoId`: ID de tópico para as operações de detalhe, atualização e exclusão",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "topicoId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticação",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    console.log('Token salvo com sucesso.');",
+                  "} else {",
+                  "    console.error('Login falhou: ' + pm.response.status);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"admin@forumhub.com\",\n  \"senha\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            },
+            "description": "Autentica o usuário e retorna o token JWT.\n\nO token é salvo automaticamente na variável `{{token}}` da coleção via script de teste."
+          },
+          "response": [
+            {
+              "name": "200 OK — Token gerado",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"login\": \"admin@forumhub.com\",\n  \"senha\": \"admin123\"\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"]}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbkBmb3J1bWh1Yi5jb20iLCJpc3MiOiJBUEkgZm9ydW1odWIiLCJleHAiOjE3MDU0MDAwMDB9.exemplo\"\n}"
+            },
+            {
+              "name": "403 Forbidden — Credenciais inválidas",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"login\": \"admin@forumhub.com\",\n  \"senha\": \"senhaerrada\"\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"]}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tópicos",
+      "item": [
+        {
+          "name": "Criar Tópico",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Dúvida sobre JPA\",\n  \"mensagem\": \"Como funciona o lazy loading no Hibernate?\",\n  \"autor\": \"João Silva\",\n  \"curso\": \"Java e Spring Boot\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/topicos",
+              "host": ["{{baseUrl}}"],
+              "path": ["topicos"]
+            },
+            "description": "Cria um novo tópico no fórum.\n\n**Campos obrigatórios:** `titulo`, `mensagem`, `autor`, `curso`.\n\n**Regra:** não são permitidos dois tópicos com o mesmo `titulo` e `mensagem`."
+          },
+          "response": [
+            {
+              "name": "201 Created — Tópico criado",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"Dúvida sobre JPA\",\n  \"mensagem\": \"Como funciona o lazy loading no Hibernate?\",\n  \"autor\": \"João Silva\",\n  \"curso\": \"Java e Spring Boot\"\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/topicos", "host": ["{{baseUrl}}"], "path": ["topicos"]}
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 1,\n  \"titulo\": \"Dúvida sobre JPA\",\n  \"mensagem\": \"Como funciona o lazy loading no Hibernate?\",\n  \"dataCriacao\": \"2024-01-15T10:30:00\",\n  \"status\": \"NAO_RESPONDIDO\",\n  \"autor\": \"João Silva\",\n  \"curso\": \"Java e Spring Boot\"\n}"
+            },
+            {
+              "name": "400 Bad Request — Tópico duplicado",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"Dúvida sobre JPA\",\n  \"mensagem\": \"Como funciona o lazy loading no Hibernate?\",\n  \"autor\": \"João Silva\",\n  \"curso\": \"Java e Spring Boot\"\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/topicos", "host": ["{{baseUrl}}"], "path": ["topicos"]}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "Já existe um tópico com o mesmo título e mensagem."
+            },
+            {
+              "name": "400 Bad Request — Campos obrigatórios faltando",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"\",\n  \"mensagem\": \"Como funciona o lazy loading?\"\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/topicos", "host": ["{{baseUrl}}"], "path": ["topicos"]}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\"campo\": \"titulo\", \"mensagem\": \"Título é obrigatório\"},\n  {\"campo\": \"autor\", \"mensagem\": \"Autor é obrigatório\"},\n  {\"campo\": \"curso\", \"mensagem\": \"Curso é obrigatório\"}\n]"
+            }
+          ]
+        },
+        {
+          "name": "Listar Tópicos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/topicos",
+              "host": ["{{baseUrl}}"],
+              "path": ["topicos"]
+            },
+            "description": "Retorna a lista de todos os tópicos cadastrados."
+          },
+          "response": [
+            {
+              "name": "200 OK — Lista de tópicos",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                "url": {"raw": "{{baseUrl}}/topicos", "host": ["{{baseUrl}}"], "path": ["topicos"]}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"id\": 1,\n    \"titulo\": \"Dúvida sobre JPA\",\n    \"autor\": \"João Silva\",\n    \"curso\": \"Java e Spring Boot\",\n    \"dataCriacao\": \"2024-01-15T10:30:00\",\n    \"status\": \"NAO_RESPONDIDO\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Detalhar Tópico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/topicos/{{topicoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["topicos", "{{topicoId}}"]
+            },
+            "description": "Retorna os detalhes completos de um tópico pelo seu ID.\n\nAltere a variável `{{topicoId}}` na coleção para consultar outros tópicos."
+          },
+          "response": [
+            {
+              "name": "200 OK — Detalhes do tópico",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                "url": {"raw": "{{baseUrl}}/topicos/1", "host": ["{{baseUrl}}"], "path": ["topicos", "1"]}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 1,\n  \"titulo\": \"Dúvida sobre JPA\",\n  \"mensagem\": \"Como funciona o lazy loading no Hibernate?\",\n  \"dataCriacao\": \"2024-01-15T10:30:00\",\n  \"status\": \"NAO_RESPONDIDO\",\n  \"autor\": \"João Silva\",\n  \"curso\": \"Java e Spring Boot\"\n}"
+            },
+            {
+              "name": "404 Not Found — ID inexistente",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                "url": {"raw": "{{baseUrl}}/topicos/999", "host": ["{{baseUrl}}"], "path": ["topicos", "999"]}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "Atualizar Tópico",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Dúvida sobre JPA - Atualizado\",\n  \"mensagem\": \"Como funciona o lazy loading e o eager loading?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/topicos/{{topicoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["topicos", "{{topicoId}}"]
+            },
+            "description": "Atualiza os dados de um tópico existente.\n\nTodos os campos são **opcionais** — apenas os campos enviados serão atualizados (atualização parcial).\n\n**Campos disponíveis:** `titulo`, `mensagem`, `autor`, `curso`."
+          },
+          "response": [
+            {
+              "name": "200 OK — Tópico atualizado",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"Dúvida sobre JPA - Atualizado\",\n  \"mensagem\": \"Como funciona o lazy loading e o eager loading?\"\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/topicos/1", "host": ["{{baseUrl}}"], "path": ["topicos", "1"]}
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"id\": 1,\n  \"titulo\": \"Dúvida sobre JPA - Atualizado\",\n  \"mensagem\": \"Como funciona o lazy loading e o eager loading?\",\n  \"dataCriacao\": \"2024-01-15T10:30:00\",\n  \"status\": \"NAO_RESPONDIDO\",\n  \"autor\": \"João Silva\",\n  \"curso\": \"Java e Spring Boot\"\n}"
+            },
+            {
+              "name": "404 Not Found — ID inexistente",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "body": {"mode": "raw", "raw": "{\"titulo\": \"Teste\"}"},
+                "url": {"raw": "{{baseUrl}}/topicos/999", "host": ["{{baseUrl}}"], "path": ["topicos", "999"]}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": ""
+            },
+            {
+              "name": "400 Bad Request — Título e mensagem duplicados",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{token}}"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"Título já existente\",\n  \"mensagem\": \"Mensagem já existente\"\n}"
+                },
+                "url": {"raw": "{{baseUrl}}/topicos/1", "host": ["{{baseUrl}}"], "path": ["topicos", "1"]}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "Já existe um tópico com o mesmo título e mensagem."
+            }
+          ]
+        },
+        {
+          "name": "Excluir Tópico",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/topicos/{{topicoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["topicos", "{{topicoId}}"]
+            },
+            "description": "Exclui permanentemente um tópico pelo seu ID."
+          },
+          "response": [
+            {
+              "name": "204 No Content — Tópico excluído",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                "url": {"raw": "{{baseUrl}}/topicos/1", "host": ["{{baseUrl}}"], "path": ["topicos", "1"]}
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "json",
+              "body": ""
+            },
+            {
+              "name": "404 Not Found — ID inexistente",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+                "url": {"raw": "{{baseUrl}}/topicos/999", "host": ["{{baseUrl}}"], "path": ["topicos", "999"]}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
